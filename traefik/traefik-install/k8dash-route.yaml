@@ -1,0 +1,17 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: k8dash-sa-route
+  namespace: kube-system
+spec:
+  entryPoints:
+    - websecure
+  tls:
+    secretName: k8dash-sa-tls
+  routes:
+    - match: Host(`kuboard.heian.com`)
+      kind: Rule
+      services:
+# 此处的services是Kubernetes中的svc name 与 端口 可以使用kubectl get svc --namespace=kube-system获取
+        - name: kuboard
+          port: 80
