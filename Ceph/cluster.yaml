@@ -1,0 +1,18 @@
+apiVersion: ceph.rook.io/v1
+kind: CephCluster
+metadata:
+  name: rook-ceph
+  namespace: rook-ceph
+spec:
+  cephVersion:
+    image: ceph/ceph:v14.2.5
+  dataDirHostPath: /var/lib/rook  # 主机有效目录
+  mon:
+    count: 2
+  dashboard:
+    enabled: true
+  storage:
+    useAllNodes: true
+    useAllDevices: false
+    directories:
+    - path: /data/rook
