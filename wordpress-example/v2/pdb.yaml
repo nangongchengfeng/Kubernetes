@@ -1,0 +1,11 @@
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: wordpress-pdb
+  namespace: kube-example
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: wordpress
+      tier: frontend
