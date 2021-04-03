@@ -27,7 +27,7 @@ spec:
     matchLabels:
       app: wordpress
       tier: frontend
-  replicas: 1
+  replicas: 4 #多副本+pod的反亲合力可以实现pod的高可用
   template:
     metadata:
       name: wordpress
@@ -49,5 +49,17 @@ spec:
           - name: WORDPRESS_DB_PASSWORD
             value: wordpress
           imagePullPolicy: IfNotPresent
+      affinity:
+        podAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - wordpress
       restartPolicy: Always
 
