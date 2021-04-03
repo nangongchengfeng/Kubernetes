@@ -1,0 +1,21 @@
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    k8s.kuboard.cn/workload: wordpress
+  labels:
+    app: wordpress
+    tier: frontend
+  name: wordpress
+  namespace: kube-example
+spec:
+  rules:
+    - host: wordpress.heian.com
+      http:
+        paths:
+          - backend:
+              serviceName: wordpress
+              servicePort: web
+            path: /
+            pathType: ImplementationSpecific
