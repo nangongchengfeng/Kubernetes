@@ -11,7 +11,7 @@ spec:
     - port: 80
       name: web
       targetPort: wdport
-  type: NodePort
+  type: ClusterIP
 
 ---
 apiVersion: apps/v1
