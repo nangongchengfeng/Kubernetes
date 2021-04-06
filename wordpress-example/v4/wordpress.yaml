@@ -1,0 +1,88 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: wordpress
+  namespace: kube-example
+spec:
+  selector:
+    app: wordpress
+    tier: frontend
+  ports:
+    - port: 80
+      name: web
+      targetPort: wdport
+  type: ClusterIP
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wordpress
+  namespace: kube-example
+  labels:
+    app: wordpress
+    tier: frontend
+spec:
+  selector:
+    matchLabels:
+      app: wordpress
+      tier: frontend
+  replicas: 4 #多副本+pod的反亲合力可以实现pod的高可用
+  template:
+    metadata:
+      name: wordpress
+      labels:
+        app: wordpress
+        tier: frontend
+    spec:
+      containers:
+        - name: wordpress
+          image: wordpress:5.3.2-apache
+          ports:
+            - containerPort: 80
+              name: wdport
+          env:
+          - name: WORDPRESS_DB_HOST
+            value: wordpress-mysql:3306
+          - name: WORDPRESS_DB_USER
+            value: wordpress
+          - name: WORDPRESS_DB_PASSWORD
+            value: wordpress
+          imagePullPolicy: IfNotPresent
+          resources:
+            limits:
+              cpu: 800m
+              memory: 150Mi
+            requests:
+              cpu: 800m
+              memory: 150Mi
+          startupProbe:  #首次启动探测（如果没有成功，不会运行下面livenessProbe）
+            httpGet:
+              port: 80
+            failureThreshold: 2    #探测成功后，最少连续探测失败多少次才被认定为失败。默认是3。最小值是1。
+            initialDelaySeconds: 20  # 容器启动后第一次执行探测是需要等待多少秒
+            timeoutSeconds: 10 #  探测超时时间。默认1秒，最小1秒。
+            periodSeconds: 5  # 执行探测的频率。默认是10秒，最小1秒。
+
+          readinessProbe:  # （就绪检查） # 如果检查失败，kubernetes会把Pod从service endpoints中剔除
+            tcpSocket:
+              port: 80
+            initialDelaySeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
+            periodSeconds: 5
+            successThreshold: 3
+      affinity:
+        podAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - wordpress
+      restartPolicy: Always
+
