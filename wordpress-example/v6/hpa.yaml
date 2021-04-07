@@ -1,0 +1,14 @@
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: wordpress
+  namespace: kube-example
+spec:
+  maxReplicas: 6
+  minReplicas: 3
+  scaleTargetRef:  # 目标作用对象
+    apiVersion: apps/v1
+    kind: Deployment
+    name: wordpress
+  targetCPUUtilizationPercentage: 60  #该使用率基于Pod设置的CPU Request值进行计算
+
