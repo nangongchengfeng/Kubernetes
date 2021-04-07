@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-nfs
+  namespace: kube-example
+  labels:
+    app: mysql
+spec:
+  storageClassName: "nfs-client" #存储后端
+  accessModes:
+    - ReadWriteOnce #允许一个容器连接，读写
+  resources:
+    requests:
+      storage: 1G #存储量
